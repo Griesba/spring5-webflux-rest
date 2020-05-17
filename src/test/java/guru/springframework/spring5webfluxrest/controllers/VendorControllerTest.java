@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class VendorControllerTest {
 
@@ -89,5 +90,25 @@ class VendorControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    public void testPatchVendor() {
+        BDDMockito.given(vendorRepository.findById(anyString()))
+                .willReturn(Mono.just(Vendor.builder().build()));
+
+        BDDMockito.given(vendorRepository.save(any(Vendor.class)))
+                .willReturn(Mono.just(Vendor.builder().build()));
+
+        Mono<Vendor> vendorMono = Mono.just(Vendor.builder().firstName("one").build());
+
+        webTestClient.patch()
+                .uri(VendorController.BASE_URL + "/aaa")
+                .body(vendorMono, Vendor.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        BDDMockito.verify(vendorRepository).save(any());
     }
 }
